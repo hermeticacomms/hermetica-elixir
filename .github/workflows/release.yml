@@ -1,0 +1,27 @@
+# Push a tag matching @version in mix.exs ("v0.1.0") to publish the "hermeticacomms" package to Hex.
+# Hex has no OIDC trusted publishing, so this uses a repo secret. One-time setup: `mix hex.user auth` on a trusted machine, then
+# `mix hex.user key generate --key-name hermetica-elixir-ci --permission api:write` and store the key as HEX_API_KEY in the
+# environment hex.
+name: release
+on:
+  push: { tags: ['v*'] }
+permissions: { contents: read }
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: hex
+    permissions: { contents: write, id-token: write, attestations: write }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: erlef/setup-beam@v1
+        with: { otp-version: '27', elixir-version: '1.17' }
+      - run: test "v$(sed -n 's/^  @version "\(.*\)"/\1/p' mix.exs)" = "$GITHUB_REF_NAME"
+      - run: mix deps.get
+      - run: mix test
+      - run: mix hex.build -o "hermeticacomms-${GITHUB_REF_NAME#v}.tar"
+      - uses: actions/attest-build-provenance@v3
+        with: { subject-path: 'hermeticacomms-*.tar' }
+      - run: mix hex.publish --yes
+        env: { HEX_API_KEY: '${{ secrets.HEX_API_KEY }}' }
+      - run: gh release create "$GITHUB_REF_NAME" hermeticacomms-*.tar --repo "$GITHUB_REPOSITORY" --generate-notes
+        env: { GH_TOKEN: '${{ github.token }}' }

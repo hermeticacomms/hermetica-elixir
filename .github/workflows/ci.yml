@@ -1,0 +1,15 @@
+name: ci
+on:
+  push: { branches: [main] }
+  pull_request:
+permissions: { contents: read }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: erlef/setup-beam@v1
+        with: { otp-version: '27', elixir-version: '1.17' }
+      - run: mix deps.get
+      - run: mix compile --warnings-as-errors
+      - run: mix test
