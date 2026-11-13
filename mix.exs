@@ -1,7 +1,7 @@
 defmodule Hermetica.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.4.0"
   @source "https://github.com/hermeticacomms/hermetica-elixir"
 
   def project do

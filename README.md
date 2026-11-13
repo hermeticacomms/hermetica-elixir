@@ -3,7 +3,7 @@
 Generated from `docs/api/openapi.json` by `node scripts/gen-sdks.mjs` (2524 operations). Uses [Req](https://hex.pm/packages/req).
 
 ```elixir
-def deps, do: [{:hermeticacomms, "~> 0.1.0"}]
+def deps, do: [{:hermeticacomms, "~> 0.4.0"}]
 ```
 
 ```elixir
